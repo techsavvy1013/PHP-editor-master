@@ -167,7 +167,6 @@
     selectedPageIndex = index;
   }
   function updateObject(objectId, payload) {
-    console.log(payload);
     allObjects = allObjects.map((objects, pIndex) =>
       pIndex == selectedPageIndex
         ? objects.map(object =>

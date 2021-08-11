@@ -130,23 +130,35 @@
       operation = "";
       degreeOffset = 0;
     }
+    degreeOffset = 0;
   });
 
   window.addEventListener("mousemove", (e) => {
     if (operation === "rotate") {
       let centerX = x + width / 2;
       let centerY = y + height / 2;
-      var angle = find_angle(
+      var angleStart = find_angle(
+        1000,
+        centerY,
         startX,
         startY,
+        centerX,
+        centerY
+      ) * (180 / Math.PI);
+      var angleEnd = find_angle(
+        1000,
+        centerY,
         e.clientX,
         e.clientY,
         centerX,
         centerY
-      );
-      degreeOffset = angle * (180 / Math.PI);
-      if (e.clientX < startX)
-        degreeOffset *= -1;
+      ) * (180 / Math.PI);
+      var degreeOffset1 = angleEnd - angleStart;
+      if (e.clientY < centerY)
+        degreeOffset1 *= -1;
+      degreeOffset += degreeOffset1;
+      startX = e.clientX;
+      startY = e.clientY;
       console.log(degreeOffset);
     }
   });
@@ -167,13 +179,12 @@
   function handleRotateEnd(event) {
     if (operation === "rotate") {
       dispatch("rotate", {
-        x: x + dx,
-        y: y + dy,
+        degree: degree + degreeOffset,
       });
-      dx = 0;
-      dy = 0;
+      operation = "";
+      degreeOffset = 0;
     }
-    operation = "";
+    degreeOffset = 0;
   }
   function onDelete() {
     dispatch("delete");
@@ -244,7 +255,7 @@
   <div
     on:mousedown={handleRotateStart}
     on:mouseup={handleRotateEnd}
-    style="top:50%"
+    style="top:-30px"
     class="absolute left-0 top-0 right-0 w-12 h-12 m-auto bg-white 
     cursor-pointer transform -translate-y-1/2 md:scale-25"
     class:cursor-grabbing={operation === "move"}
