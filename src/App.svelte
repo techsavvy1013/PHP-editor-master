@@ -175,16 +175,6 @@
     );
   }
   function updateImageObject(objectId, payload) {
-    // const _pages = pages;
-    // console.log(_pages);
-    console.log(objectId);
-    console.log(payload);
-    console.log(canvasHeight);
-    
-    // allObjects = allObjects.map((objects, pIndex) =>
-    //     pIndex === selectedPageIndex ? [...objects, object] : objects
-    //   );
-
     allObjects = allObjects.map((objects, pIndex) =>
       pIndex == selectedPageIndex
         ? objects.map(object =>

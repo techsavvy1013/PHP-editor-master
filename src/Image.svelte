@@ -163,9 +163,18 @@
   </div>
   <div
     on:click={onDelete}
-    class="absolute left-0 top-0 right-0 w-12 h-12 m-auto rounded-full bg-white
+    class="absolute left-0 right-0 w-12 h-12 m-auto rounded-full bg-white
     cursor-pointer transform -translate-y-1/2 md:scale-25">
     <img class="w-full h-full" src="/delete.svg" alt="delete object" />
+  </div>
+  <div
+    use:pannable
+    style="top:-80px"
+    class="absolute left-0 top-0 right-0 w-12 h-12 m-auto bg-white 
+    cursor-pointer transform -translate-y-1/2 md:scale-25"
+    class:cursor-grabbing={operation === 'move'}
+    class:operation>
+    <img class="w-full h-full" src="/rotate.svg" alt="rotate object" />
   </div>
   <canvas class="w-full h-full" bind:this={canvas} />
 </div>
