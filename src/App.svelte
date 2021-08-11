@@ -102,6 +102,7 @@
         height,
         x: 0,
         y: 0,
+        degree: 0,
         payload: img,
         file
       };
@@ -166,6 +167,7 @@
     selectedPageIndex = index;
   }
   function updateObject(objectId, payload) {
+    console.log(payload);
     allObjects = allObjects.map((objects, pIndex) =>
       pIndex == selectedPageIndex
         ? objects.map(object =>
@@ -370,6 +372,7 @@
                 {#if object.type === 'image'}
                   <Image
                     on:update={e => updateImageObject(object.id, e.detail)}
+                    on:rotate={e => updateObject(object.id, e.detail)}
                     on:delete={() => deleteObject(object.id)}
                     file={object.file}
                     payload={object.payload}
@@ -377,6 +380,7 @@
                     y={object.y}
                     width={object.width}
                     height={object.height}
+                    degree={object.degree}
                     pageScale={pagesScale[pIndex]} />
                 {:else if object.type === 'text'}
                   <Text
