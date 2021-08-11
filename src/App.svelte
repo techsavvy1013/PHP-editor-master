@@ -27,6 +27,7 @@
   let selectedPageIndex = -1;
   let saving = false;
   let addingDrawing = false;
+  let canvasHeight = 0;
   // for test purpose
   onMount(async () => {
     try {
@@ -42,6 +43,12 @@
       // addImage(imgBlob);
       // addTextField("測試!");
       // addDrawing(200, 100, "M30,30 L100,50 L50,70", 0.5);
+
+      const _page = await page;
+    const viewport = _page.getViewport({ scale: 1, rotation: 0 });
+    console.log("viewport");
+    console.log(viewport);
+    
     } catch (e) {
       console.log(e);
     }
@@ -167,6 +174,62 @@
         : objects
     );
   }
+  function updateImageObject(objectId, payload) {
+    // const _pages = pages;
+    // console.log(_pages);
+    console.log(objectId);
+    console.log(payload);
+    console.log(canvasHeight);
+    
+    // allObjects = allObjects.map((objects, pIndex) =>
+    //     pIndex === selectedPageIndex ? [...objects, object] : objects
+    //   );
+
+    allObjects = allObjects.map((objects, pIndex) =>
+      pIndex == selectedPageIndex
+        ? objects.map(object =>
+            object.id === objectId ? { ...object, ...payload } : object
+          )
+        : objects
+    );
+
+    let tempAllObjects = [];
+    for (var i=0 ; i< allObjects.length ; i++) 
+      tempAllObjects[i] = [];
+      
+    for (var i=0 ; i< allObjects.length ; i++) {
+      let objects = allObjects[i];
+      var k = 0;
+      for (var j=0 ; j< objects.length ; j++)
+      {
+        var object = objects[j];
+        if (object.id != objectId) {
+          tempAllObjects[i].push(object);
+          continue;
+        }
+        if (object.y < 0) {
+          if (i == 0) {
+            tempAllObjects[i].push(object);
+            continue;
+          }
+          object.y = 0;
+          tempAllObjects[i-1].push(object);
+          continue;
+        }
+        if (object.y > (canvasHeight)) {
+          if ((i+1) >= allObjects.length) {
+            tempAllObjects[i].push(object);
+            continue;
+          }
+          object.y = 0;
+          tempAllObjects[i+1].push(object);
+          continue;
+        }
+        tempAllObjects[i].push(object);
+      }
+    }
+    allObjects = tempAllObjects;
+  }
   function deleteObject(objectId) {
     allObjects = allObjects.map((objects, pIndex) =>
       pIndex == selectedPageIndex
@@ -174,8 +237,9 @@
         : objects
     );
   }
-  function onMeasure(scale, i) {
+  function onMeasure(scale, height, i) {
     pagesScale[i] = scale;
+    canvasHeight = height;
   }
   // FIXME: Should wait all objects finish their async work
   async function savePDF() {
@@ -307,7 +371,7 @@
             class="relative shadow-lg"
             class:shadow-outline={pIndex === selectedPageIndex}>
             <PDFPage
-              on:measure={e => onMeasure(e.detail.scale, pIndex)}
+              on:measure={e => onMeasure(e.detail.scale, e.detail.canvasHeight, pIndex)}
               {page} />
             <div
               class="absolute top-0 left-0 transform origin-top-left"
@@ -315,7 +379,7 @@
               {#each allObjects[pIndex] as object (object.id)}
                 {#if object.type === 'image'}
                   <Image
-                    on:update={e => updateObject(object.id, e.detail)}
+                    on:update={e => updateImageObject(object.id, e.detail)}
                     on:delete={() => deleteObject(object.id)}
                     file={object.file}
                     payload={object.payload}

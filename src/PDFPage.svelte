@@ -9,7 +9,8 @@
   let mounted;
   function measure() {
     dispatch("measure", {
-      scale: canvas.clientWidth / width
+      scale: canvas.clientWidth / width,
+      canvasHeight: height
     });
   }
   async function render() {
