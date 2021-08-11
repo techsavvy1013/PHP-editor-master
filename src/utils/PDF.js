@@ -1,6 +1,7 @@
 import { readAsArrayBuffer } from './asyncReader.js';
 import { fetchFont, getAsset } from './prepareAssets';
 import { noop } from './helper.js';
+// import { degrees } from "pdf-lib";
 
 export async function save(pdfFile, objects, name) {
   const PDFLib = await getAsset('PDFLib');
@@ -33,6 +34,7 @@ export async function save(pdfFile, objects, name) {
               y: pageHeight - y - height,
               width,
               height,
+              rotate: PDFLib.degrees(45)
             });
         } catch (e) {
           console.log('Failed to embed image.', e);

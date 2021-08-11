@@ -100,6 +100,25 @@
     operation = "scale";
     directions = event.detail.target.dataset.direction.split("-");
   }
+
+  function handleRotateStart(event) {
+    startX = event.detail.x;
+    startY = event.detail.y;
+    operation = "rotate";
+  }
+  function handleRotateMove(event) {
+  }
+  function handleRotateEnd(event) {
+    if (operation === "rotate") {
+      dispatch("rotate", {
+        x: x + dx,
+        y: y + dy
+      });
+      dx = 0;
+      dy = 0;
+    } 
+    operation = "";
+  }
   function onDelete() {
     dispatch("delete");
   }
@@ -121,8 +140,9 @@
 <svelte:options immutable={true} />
 <div
   class="absolute left-0 top-0 select-none"
-  style="width: {width + dw}px; height: {height + dh}px; transform: translate({x + dx}px,
-  {y + dy}px);">
+  style="width: {width + dw}px; height: {height + dh}px; transform: translate({x + dx}px, 
+  {y + dy}px) rotate(45deg);
+  ">
 
   <div
     use:pannable
@@ -169,6 +189,9 @@
   </div>
   <div
     use:pannable
+    on:panstart={handleRotateStart}
+    on:panmove={handleRotateMove}
+    on:panend={handleRotateEnd}
     style="top:-80px"
     class="absolute left-0 top-0 right-0 w-12 h-12 m-auto bg-white 
     cursor-pointer transform -translate-y-1/2 md:scale-25"
