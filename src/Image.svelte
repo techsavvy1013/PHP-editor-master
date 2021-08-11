@@ -127,16 +127,26 @@
       dispatch("rotate", {
         degree: degree + degreeOffset,
       });
+      operation = "";
+      degreeOffset = 0;
     }
-    operation = "";
   });
 
   window.addEventListener("mousemove", (e) => {
     if (operation === "rotate") {
       let centerX = x + width / 2;
       let centerY = y + height / 2;
-      var angle = find_angle(startX, startY, e.clientX, e.clientY, centerX, centerY);
+      var angle = find_angle(
+        startX,
+        startY,
+        e.clientX,
+        e.clientY,
+        centerX,
+        centerY
+      );
       degreeOffset = angle * (180 / Math.PI);
+      if (e.clientX < startX)
+        degreeOffset *= -1;
       console.log(degreeOffset);
     }
   });
@@ -234,7 +244,7 @@
   <div
     on:mousedown={handleRotateStart}
     on:mouseup={handleRotateEnd}
-    style="top:-80px"
+    style="top:50%"
     class="absolute left-0 top-0 right-0 w-12 h-12 m-auto bg-white 
     cursor-pointer transform -translate-y-1/2 md:scale-25"
     class:cursor-grabbing={operation === "move"}
