@@ -12,6 +12,7 @@
   export let y;
   export let degree;
   export let pageScale = 1;
+  export let canvasWidth = 0;
   const dispatch = createEventDispatcher();
   let startX;
   let startY;
@@ -22,7 +23,6 @@
   let dy = 0;
   let dw = 0;
   let dh = 0;
-  let degreeOffset = 0;
   async function render() {
     // use canvas to prevent img tag's auto resize
     canvas.width = width;
@@ -50,12 +50,7 @@
   }
   function handlePanMove(event) {
     if (operation === "rotate") {
-      console.log("---");
-      console.log(startX);
-      console.log(event.detail.x);
       let centerX = x + width / 2;
-      // let centerY = y + height/2;
-      console.log(centerX);
       return;
     }
 
@@ -123,43 +118,35 @@
   }
 
   window.addEventListener("mouseup", (e) => {
+    console.log('end');
     if (operation === "rotate") {
+      
       dispatch("rotate", {
-        degree: degree + degreeOffset,
+        degree: degree,
       });
       operation = "";
-      degreeOffset = 0;
     }
-    degreeOffset = 0;
   });
 
   window.addEventListener("mousemove", (e) => {
+    console.log('rotate');
     if (operation === "rotate") {
-      let centerX = x + width / 2;
-      let centerY = y + height / 2;
-      var angleStart = find_angle(
-        1000,
-        centerY,
-        startX,
-        startY,
-        centerX,
-        centerY
-      ) * (180 / Math.PI);
+      
+      let centerX = (x + dx) + width / 2;
+      let centerY = (y + dy) + height / 2;
+      let offsetX = (window.innerWidth - canvasWidth) / 2;
+
       var angleEnd = find_angle(
-        1000,
-        centerY,
-        e.clientX,
-        e.clientY,
+        centerX,
+        -1000,
+        e.clientX - offsetX,
+        e.clientY - 48 - 20 - 20,
         centerX,
         centerY
       ) * (180 / Math.PI);
-      var degreeOffset1 = angleEnd - angleStart;
-      if (e.clientY < centerY)
-        degreeOffset1 *= -1;
-      degreeOffset += degreeOffset1;
-      startX = e.clientX;
-      startY = e.clientY;
-      console.log(degreeOffset);
+      degree = angleEnd;
+      if ((e.clientX - offsetX) < centerX)
+        degree *= -1;
     }
   });
 
@@ -167,25 +154,9 @@
     startX = event.clientX;
     startY = event.clientY;
     operation = "rotate";
+    console.log('start');
   }
-  function handleRotateMove(event) {
-    console.log(operation);
-    console.log(startX);
-    console.log(event.clientX);
-    let centerX = x + width / 2;
-    // let centerY = y + height/2;
-    console.log(centerX);
-  }
-  function handleRotateEnd(event) {
-    if (operation === "rotate") {
-      dispatch("rotate", {
-        degree: degree + degreeOffset,
-      });
-      operation = "";
-      degreeOffset = 0;
-    }
-    degreeOffset = 0;
-  }
+  
   function onDelete() {
     dispatch("delete");
   }
@@ -196,7 +167,7 @@
   class="absolute left-0 top-0 select-none"
   style="width: {width + dw}px; height: {height +
     dh}px; transform: translate({x + dx}px, 
-  {y + dy}px) rotate({degree + degreeOffset}deg);
+  {y + dy}px) rotate({degree}deg);
   "
 >
   <div
@@ -254,7 +225,6 @@
   </div>
   <div
     on:mousedown={handleRotateStart}
-    on:mouseup={handleRotateEnd}
     style="top:-30px"
     class="absolute left-0 top-0 right-0 w-12 h-12 m-auto bg-white 
     cursor-pointer transform -translate-y-1/2 md:scale-25"

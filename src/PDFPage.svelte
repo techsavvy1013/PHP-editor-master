@@ -10,7 +10,8 @@
   function measure() {
     dispatch("measure", {
       scale: canvas.clientWidth / width,
-      canvasHeight: height
+      canvasHeight: height,
+      canvasWidth: canvas.clientWidth
     });
   }
   async function render() {
