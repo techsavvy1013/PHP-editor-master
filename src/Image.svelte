@@ -50,7 +50,6 @@
   }
   function handlePanMove(event) {
     if (operation === "rotate") {
-      let centerX = x + width / 2;
       return;
     }
 
@@ -117,46 +116,61 @@
     return Math.acos((p1c * p1c + p0c * p0c - p0p1 * p0p1) / (2 * p1c * p0c));
   }
 
-  window.addEventListener("mouseup", (e) => {
-    console.log('end');
+  function handleRotateEnd() {
     if (operation === "rotate") {
-      
       dispatch("rotate", {
         degree: degree,
       });
       operation = "";
     }
+  }
+
+  function handleRotating(cursorX, cursorY) {
+    if (operation === "rotate") {
+      let centerX = (x + dx + width / 2) * pageScale;
+      let centerY = (y + dy + height / 2) * pageScale;
+      let offsetX = (window.innerWidth - canvasWidth) / 2;
+      // console.log(offsetX);
+      // console.log(cursorX - offsetX);
+      // console.log(centerX);
+      var angleEnd =
+        find_angle(
+          centerX,
+          -1000,
+          cursorX - offsetX,
+          cursorY - 48 - 20 - 20,
+          centerX,
+          centerY
+        ) *
+        (180 / Math.PI);
+      
+      degree = angleEnd;
+      if (cursorX - offsetX < centerX) degree *= -1;
+    }
+  }
+
+  window.addEventListener("mouseup", (e) => {
+    handleRotateEnd();
+  });
+
+  window.addEventListener("touchend", (e) => {
+    handleRotateEnd();
   });
 
   window.addEventListener("mousemove", (e) => {
-    console.log('rotate');
-    if (operation === "rotate") {
-      
-      let centerX = (x + dx) + width / 2;
-      let centerY = (y + dy) + height / 2;
-      let offsetX = (window.innerWidth - canvasWidth) / 2;
+    handleRotating(e.clientX, e.clientY);
+  });
 
-      var angleEnd = find_angle(
-        centerX,
-        -1000,
-        e.clientX - offsetX,
-        e.clientY - 48 - 20 - 20,
-        centerX,
-        centerY
-      ) * (180 / Math.PI);
-      degree = angleEnd;
-      if ((e.clientX - offsetX) < centerX)
-        degree *= -1;
-    }
+  window.addEventListener("touchmove", (e) => {
+    handleRotating(e.touches[0].clientX, e.touches[0].clientY);
   });
 
   function handleRotateStart(event) {
     startX = event.clientX;
     startY = event.clientY;
     operation = "rotate";
-    console.log('start');
   }
-  
+
   function onDelete() {
     dispatch("delete");
   }
@@ -225,7 +239,8 @@
   </div>
   <div
     on:mousedown={handleRotateStart}
-    style="top:-30px"
+    on:touchstart={handleRotateStart}
+    style="top:-45px"
     class="absolute left-0 top-0 right-0 w-12 h-12 m-auto bg-white 
     cursor-pointer transform -translate-y-1/2 md:scale-25"
     class:cursor-grabbing={operation === "move"}
